@@ -57,13 +57,14 @@ It is designed to:
 ├── bisec_algo_main.py # Main biesction script
 ├── bisec_algo_aux.py  # Functions used during the bisection algorithm 
 ├── opf_analysis.py    # Analysis scripts for pipe flow data
+├── bisection.f90      # Fortran code for the avg_state.out utility
 ├── Bisection_run/
   │
-  ├── utils/                   # Tools
-  │   ├── bisec_sim/            # Template simulation for bisection
-  │   ├── fwdInt_sim/           # Template simulation for forward integration
-  │   ├── p2m.out              # Extracts real-space velocity fields
-  │   ├── avg_state.out        # Averages two states for bisection
+  ├── utils/  
+  │   ├── bisec_sim/           # Template simulation for bisection
+  │   ├── fwdInt_sim/          # Template simulation for forward integration
+  │   ├── p2m.out              # Extracts real-space velocity fields (need to compile seperetly)
+  │   ├── avg_state.out        # Averages two states for bisection (need to compile seperetly)
   │   ├── sim_run.sh           # Run a simulation
   │   ├── avg_state.sh         # Average two states
   │   ├── mv_ic_ext.sh         # Extract a single state

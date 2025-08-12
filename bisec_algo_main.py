@@ -398,11 +398,8 @@ def getMainState():
 ## Main: 
 
 ##parameters
-#main_dir    = '../bisec_R2050_L180_01'
-#main_dir    = '/storage/ph_anna/antonsv/openpipe/runs/bisec_R2050_L150_01'
-#main_dir    = '/storage/ph_anna/antonsv/openpipe/runs/bisec_R2050_L150_02'
-main_dir = sys.argv[1]
-m_N_max     = 100
+main_dir = sys.argv[1] # the main directory for the bisection
+m_N_max     = 100      # max bisection steps
 
 #init logger
 logger = logging.getLogger(__name__)

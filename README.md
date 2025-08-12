@@ -181,11 +181,9 @@ python3 bisec_algo_main.py 'Main_Dir'
 ---
 
 ## Outputs
--  **Flow fields** in FwdInt_{num}/fwsInt_{1,2}p/state_{X}.cdf.dat samples of the edge-state (if converged)
-- **Bisection plots**: `bisec_sim_{n}_class.png` — classification verification.
+- **Flow fields**: ``FwdInt_{num}/fwsInt_{1,2}p/state_{X}.cdf.dat`` samples of the edge-state (when converged)
+- **Analysis plots**: For manual verification.
 - **Forward integration plots**:  
-  - `fwdInt_dist.png` — L² distance evolution.  
-  - `fwdInt_QU_states.png` — QU profiles.
 - **Logs**: `status` files documenting all iterations.
 
 ---

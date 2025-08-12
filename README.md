@@ -152,15 +152,15 @@ Keeps track of the current state of the bisection:
 
 1. **Clone the repository**  
 2. **Compile two [OpenPipeFlow](http://openpipeflow.org/) template simulations:**  
-   - **`bisec_sim/`** — Long simulation time limit \(T_{\text{bisec}}\) with a low saving rate.  
-     - If \(T_{\text{bisec}}\) is too short to achieve a classification, another simulation will be initiated with the initial conditions taken from the last snapshot.  
+   - **`bisec_sim/`** — Long simulation time limit $T_{\text{bisec}}$ with a low saving rate.  
+     - If $T_{\text{bisec}}$ is too short to achieve a classification, another simulation will be initiated with the initial conditions taken from the last snapshot.  
      - This process repeats until a classification is achieved.  
      - The saving rate should be kept relatively low to reduce memory usage.  
-   - **`fwdInt_sim/`** — Short simulation time limit \(T_{\text{fwd}}\) with a high saving rate.  
-     - \(T_{\text{fwd}}\) sets the maximum integration time for the bounding trajectories and should be slightly longer than the expected separation time.  
+   - **`fwdInt_sim/`** — Short simulation time limit $T_{\text{fwd}}$ with a high saving rate.  
+     - $T_{\text{fwd}}$ sets the maximum integration time for the bounding trajectories and should be slightly longer than the expected separation time.  
      - The high saving rate ensures that the states can be used for spatio-temporal analysis of the edge states.
 3. **Compile two utility programs:**  
-   - **`p2m.out`** — Built-in `prim2matlab.f90` utility for data extraction.  
+   - **`p2m.out`** — Built-in openpiflow utility `prim2matlab.f90` for data extraction.  
    - **`avg_state.out`** — Custom utility for generating a bisection state between two input states, using the provided `bisection.f90` OpenPipeFlow utility code.
 4. **Set the appropriate parameters** in `bisec.config`.
 5. **Create the initial directory** `IC_0000/` containing:  

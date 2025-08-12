@@ -1,4 +1,4 @@
-# Edge Tracking in Pipe Flow
+# Split-Edge Tracking in Pipe Flow
 
 ## Overview
 This repository contains a **Python workflow** for **edge tracking in pipe flow** using **precompiled [OpenPipeFlow](http://openpipeflow.org/) simulations**.  

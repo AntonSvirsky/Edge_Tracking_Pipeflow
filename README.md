@@ -104,7 +104,7 @@ FWdInt_{num}/
 ### Prerequisites
 - **Python**: 3.x  
 - **OpenPipeFlow**: Precompiled binaries included in `utils/`
-- **Dependencies**: `numpy`, `matplotlib`, 'netCDF4'
+- **Dependencies**: `numpy`, `matplotlib`, `netCDF4`
 
 ---
 
@@ -118,39 +118,61 @@ It is divided into several sections:
 Defines thresholds for state separation during bisection and forward integration.
 - **`L_bs`** — Minimum $L^2$ distance between bounding states required to stop the bisection process.  
 - **`L_fwd`** — Maximum $L^2$ distance allowed for the forward integration step before it is considered divergent.  
-- **`force_change`** — Boolean flag to force a change in classification between iterations. If 'True' ensures that bisection is performed untill both `1p` and `2p` states have been replaced.
+- **`force_change`** — Boolean flag to force a change in classification between iterations. If `True` ensures that bisection is performed untill both `1p` and `2p` states have been replaced.
 
 #### [State definition]
 Parameters used to classify states into **puff types** based on flow features.
 - **`F_th`** — Threshold $q_{th}$ for $q$ variable consided as turbulent detection in the flow field.  
-- **`min_gap`** —  Spatial separation between detected structures $w$ to be considered distinct (in '2p' state). If $w>$'min_gap' the state will be considered as '2p' (if tuebulent lenfgth condition is also satesfied)  
-- **`small_gap`** — Spatial seperation between structures $w$ to not be considered a single puff. Thus only if gap $w<$'small_gap' the structure can be classified as '1p'. (This parameter is not used in practics, by seting 'small_gap=0'). 
+- **`min_gap`** —  Spatial separation between detected structures $w$ to be considered distinct (in '2p' state). If $w>$`min_gap` the state will be considered as '2p' (if tuebulent lenfgth condition is also satesfied)  
+- **`small_gap`** — Spatial seperation between structures $w$ to not be considered a single puff. Thus only if gap $w<$`small_gap` the structure can be classified as '1p'. (This parameter is not used in practics, by seting 'small_gap=0'). 
 - **`p0_Ft_lim`, `p1_Ft_lim`, `p2_Ft_lim`, `p3_Ft_lim`** — Ranges of turbulent length $l_{turb} defining classification categories for 0 - unclassided, 1 - one puff, 2 - two puffs, or 3 - three (or more) puffs.  
 - **`min_class_time`** — Minimum simulation time required before a classification is accepted.
 
 #### [Conversion settings]
 Parameters for converting simulation data into physical fields for analysis or visualization.
-- **`Lz`** — Domain length in the axial (`z`) direction.  
+- **`Lz`** — Domain length in the axial ($z$) direction.  
 - **`nx`, `ny`, `nz`** — Number of grid points in the $x$, $y$, and axial direction $z$ respectively to which the data is interpolated for analysis.
 
 #### [Misc]
 Miscellaneous runtime controls.
 - **`c_timer_min`** — Minimum allowed wall-clock time (in minutes) before considering a simulation step complete. The script will wait repeatedly checks every `c_timer_min` if the simulations where complete.  
 
-### Bisection state file:
+### Bisection state file `main.state`:
+Keeps track of the current state of the bisection:
+### [State]
+- 's' - The name of the bisection step. 'IC' - inital conditions, 'Bis' - bisection step, 'Fwd' - forward  integration, 'Adv' - advancing to the next step. 
+- 'n' - The number of the current iteration. When initating should be 0.
+
 
 ### Preperaing the bisection simulation
-1. Compile two open-pipe flow template simulations, with the same parameters but diffrent time limit (and saving rates):
-    *  'bisec_sim/' - Long simulation time limit $T_{bisec}$ and low saving rate. If $T_{bisec}$ is too short to achive a classification another simulation will be initated with the inital conditions taken as the last snapshot. This will repeat untill a classification is achived. The saving rate should be kept relativly small to reduce memory usage
-    *   'fwdInt_sim/' - Short simulation time limit $T_{fwd}$ and high saving rate. $T_{fwd}$ will set the maximum integration time for the bounding trajectories, should be slightly longer then the expected seperation time. The saving rate is high so that the states can be used for spatio-temporal analysis of the edge-states.
-2. Compile two utility files:
-    * 'p2m.out' - Built in utility 'prim2matlab.f90' for data extraction
-    * 'avg_state.out' - Custome utility to obtain a bisection between two input states. Uses the provided 'bisection.f90' openpipeflow utility code.
-3. Define apropriate parameters in `bisec.config`
-4. Create the inital directory with IC_0000/ containing:
-    *  s_1p.cdf.dat - Flow states that is known to be (or develop into) a one puff state
-    *  s_2p.cdf.dat - Flow states that is known to be (or develop into) a two puffs state
-5. Tnitalise state file with: 's=IC' and 'n=0'
+# Setup Instructions
+
+1. **Clone the repository**  
+
+2. **Compile two [OpenPipeFlow](http://openpipeflow.org/) template simulations:**  
+   - **`bisec_sim/`** — Long simulation time limit \(T_{\text{bisec}}\) with a low saving rate.  
+     - If \(T_{\text{bisec}}\) is too short to achieve a classification, another simulation will be initiated with the initial conditions taken from the last snapshot.  
+     - This process repeats until a classification is achieved.  
+     - The saving rate should be kept relatively low to reduce memory usage.  
+   - **`fwdInt_sim/`** — Short simulation time limit \(T_{\text{fwd}}\) with a high saving rate.  
+     - \(T_{\text{fwd}}\) sets the maximum integration time for the bounding trajectories and should be slightly longer than the expected separation time.  
+     - The high saving rate ensures that the states can be used for spatio-temporal analysis of the edge states.
+
+3. **Compile two utility programs:**  
+   - **`p2m.out`** — Built-in `prim2matlab.f90` utility for data extraction.  
+   - **`avg_state.out`** — Custom utility for generating a bisection state between two input states, using the provided `bisection.f90` OpenPipeFlow utility code.
+
+4. **Set the appropriate parameters** in `bisec.config`.
+
+5. **Create the initial directory** `IC_0000/` containing:  
+   - `s_1p.cdf.dat` — Flow state known to be (or evolve into) a one-puff state.  
+   - `s_2p.cdf.dat` — Flow state known to be (or evolve into) a two-puff state.
+
+6. **Initialize the state file** with:  
+   ```
+   s = IC
+   n = 0
+   ```
 
 ### Run the workflow
 ```bash

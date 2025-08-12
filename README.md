@@ -21,7 +21,7 @@ It is designed to:
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 ### 1. Initial Conditions
 - Place the two starting states in the `Main_Dir/IC_0000/` directory:
@@ -50,7 +50,31 @@ It is designed to:
 
 ---
 
-## 📂 Directory Structure
+## Directory Structure
+
+### Directory Layout
+```
+├── bisec_algo_main.py # Main biesction script
+├── bisec_algo_aux.py  # Functions used during the bisection algorithm 
+├── opf_analysis.py    # Analysis scripts for pipe flow data
+├── Bisection_run/
+  │
+  ├── utils/                   # Tools
+  │   ├── bisec_sim/            # Template simulation for bisection
+  │   ├── fwdInt_sim/           # Template simulation for forward integration
+  │   ├── p2m.out              # Extracts real-space velocity fields
+  │   ├── avg_state.out        # Averages two states for bisection
+  │   ├── sim_run.sh           # Run a simulation
+  │   ├── avg_state.sh         # Average two states
+  │   ├── mv_ic_ext.sh         # Extract a single state
+  │   └── mv_series_ext.sh     # Extract a series of states
+  │   
+  │
+  ├── IC_0000/                 # Initial condition directory
+  ├── bisec.config             # Configuration file for bisection
+```
+
+---
 
 ### At Runtime (Generated)
 ```
@@ -74,28 +98,8 @@ FWdInt_{num}/
    └── status                 # Forward integration log
 ```
 
-### Repository Layout
-```
-Edge_Tracking_Pipeflow/
-│
-├── utils/                   # Precompiled OpenPipeFlow tools
-│   ├── bisec_sim            # Template simulation for bisection
-│   ├── fwdInt_sim           # Template simulation for forward integration
-│   ├── p2m.out              # Extracts real-space velocity fields
-│   ├── avg_state.out        # Averages two states for bisection│
-│   ├── sim_run.sh           # Run a simulation
-│   ├── avg_state.sh         # Average two states
-│   ├── mv_ic_ext.sh         # Extract a single state
-│   ├── mv_series_ext.sh     # Extract a series of states
-│   └── ...
-│
-├── IC_0000/                 # Initial condition directory
-├── bisec.config             # Configuration file for bisection
-```
 
----
-
-## 🛠 Installation
+## Installation
 
 ### Prerequisites
 - **Python**: 3.x  
@@ -104,7 +108,49 @@ Edge_Tracking_Pipeflow/
 
 ---
 
-## 🚀 Usage
+## Usage
+
+### Configuration File Reference — `bisec.config`
+This file controls the **bisection** and **forward integration** procedures, as well as state classification and data conversion.  
+It is divided into several sections:
+
+#### [State distance]
+Defines thresholds for state separation during bisection and forward integration.
+- **`L_bs`** — Minimum $L^2$ distance between bounding states required to stop the bisection process.  
+- **`L_fwd`** — Maximum $L^2$ distance allowed for the forward integration step before it is considered divergent.  
+- **`force_change`** — Boolean flag to force a change in classification between iterations. If 'True' ensures that bisection is performed untill both `1p` and `2p` states have been replaced.
+
+#### [State definition]
+Parameters used to classify states into **puff types** based on flow features.
+- **`F_th`** — Threshold $q_{th}$ for $q$ variable consided as turbulent detection in the flow field.  
+- **`min_gap`** —  Spatial separation between detected structures $w$ to be considered distinct (in '2p' state). If $w>$'min_gap' the state will be considered as '2p' (if tuebulent lenfgth condition is also satesfied)  
+- **`small_gap`** — Spatial seperation between structures $w$ to not be considered a single puff. Thus only if gap $w<$'small_gap' the structure can be classified as '1p'. (This parameter is not used in practics, by seting 'small_gap=0'). 
+- **`p0_Ft_lim`, `p1_Ft_lim`, `p2_Ft_lim`, `p3_Ft_lim`** — Ranges of turbulent length $l_{turb} defining classification categories for 0 - unclassided, 1 - one puff, 2 - two puffs, or 3 - three (or more) puffs.  
+- **`min_class_time`** — Minimum simulation time required before a classification is accepted.
+
+#### [Conversion settings]
+Parameters for converting simulation data into physical fields for analysis or visualization.
+- **`Lz`** — Domain length in the axial (`z`) direction.  
+- **`nx`, `ny`, `nz`** — Number of grid points in the $x$, $y$, and axial direction $z$ respectively to which the data is interpolated for analysis.
+
+#### [Misc]
+Miscellaneous runtime controls.
+- **`c_timer_min`** — Minimum allowed wall-clock time (in minutes) before considering a simulation step complete. The script will wait repeatedly checks every `c_timer_min` if the simulations where complete.  
+
+### Bisection state file:
+
+### Preperaing the bisection simulation
+1. Compile two open-pipe flow template simulations, with the same parameters but diffrent time limit (and saving rates):
+    *  'bisec_sim/' - Long simulation time limit $T_{bisec}$ and low saving rate. If $T_{bisec}$ is too short to achive a classification another simulation will be initated with the inital conditions taken as the last snapshot. This will repeat untill a classification is achived. The saving rate should be kept relativly small to reduce memory usage
+    *   'fwdInt_sim/' - Short simulation time limit $T_{fwd}$ and high saving rate. $T_{fwd}$ will set the maximum integration time for the bounding trajectories, should be slightly longer then the expected seperation time. The saving rate is high so that the states can be used for spatio-temporal analysis of the edge-states.
+2. Compile two utility files:
+    * 'p2m.out' - Built in utility 'prim2matlab.f90' for data extraction
+    * 'avg_state.out' - Custome utility to obtain a bisection between two input states. Uses the provided 'bisection.f90' openpipeflow utility code.
+3. Define apropriate parameters in `bisec.config`
+4. Create the inital directory with IC_0000/ containing:
+    *  s_1p.cdf.dat - Flow states that is known to be (or develop into) a one puff state
+    *  s_2p.cdf.dat - Flow states that is known to be (or develop into) a two puffs state
+5. Tnitalise state file with: 's=IC' and 'n=0'
 
 ### Run the workflow
 ```bash
@@ -113,7 +159,7 @@ python3 bisec_algo_main.py 'Main_Dir'
 
 ---
 
-## 📊 Outputs
+## Outputs
 -  **Flow fields** in FwdInt_{num}/fwsInt_{1,2}p/state_{X}.cdf.dat samples of the edge-state (if converged)
 - **Bisection plots**: `bisec_sim_{n}_class.png` — classification verification.
 - **Forward integration plots**:  
@@ -123,18 +169,12 @@ python3 bisec_algo_main.py 'Main_Dir'
 
 ---
 
-## 📚 References
+## References
 If you use this code in your research, please cite:
-- *[[Your Paper / DOI here](https://doi.org/10.48550/arXiv.2505.05075)]*
+- *[[	Self-Replication of Turbulent Puffs: On the edge between chaotic saddles](https://doi.org/10.48550/arXiv.2505.05075)]*
 - *[[Openpipeflow](10.1016/j.softx.2017.05.003)]*
 
 ---
 
-## 📄 License
-This project is licensed under the **[MIT / GPL / other]** License — see the [LICENSE](LICENSE) file for details.
-
----
-
 ## 📬 Contact
-For questions or collaborations:
-- **Anton Svirsky** — *[your-email@example.com]*  
+- **Anton Svirsky** — *[anton.sv@campus.technion.ac.il]*  

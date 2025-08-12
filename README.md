@@ -72,30 +72,33 @@ It is designed to:
   │
   ├── IC_0000/                 # Initial condition directory
   ├── bisec.config             # Configuration file for bisection
+  └── main.state               # Traker of the current bisection step
 ```
 
 ---
 
 ### At Runtime (Generated)
 ```
-IC_{num}/
-   ├── s_1p.cdf.dat          # 1-puff initial condition
-   └── s_2p.cdf.dat          # 2-puff initial condition
+├── Bisection_run/
+    IC_{n}/
+       ├── s_1p.cdf.dat          # 1-puff initial condition
+       └── s_2p.cdf.dat          # 2-puff initial condition
+    
+    Bisec_{num}/
+       ├── bisec_sim_{n}         # n-th bisection integration
+       ├── status                # Log of bisection iterations
+       ├── s_{X}p_{n}.cdf.dat    # Intermediate states (X = 1 or 2 puff outcome)
+       ├── bisec_sim_{n}_class.png  # Classification plot
+       └── ...                      # Other outputs
+    
+    FWdInt_{num}/
+       ├── fwdInt_1p/             # Forward integration for 1 puff
+       ├── fwdInt_2p/             # Forward integration for 2 puffs
+       ├── fwdInt_dist.png        # L² distance evolution
+       ├── fwdInt_QU_states.png   # QU profiles before/after integration
+       ├── classification figures
+       └── status                 # Forward integration log
 
-Bisec_{num}/
-   ├── bisec_sim_{n}         # n-th bisection integration
-   ├── status                # Log of bisection iterations
-   ├── s_{X}p_{n}.cdf.dat    # Intermediate states (X = 1 or 2 puff outcome)
-   ├── bisec_sim_{n}_class.png  # Classification plot
-   └── ...                      # Other outputs
-
-FWdInt_{num}/
-   ├── fwdInt_1p/             # Forward integration for 1 puff
-   ├── fwdInt_2p/             # Forward integration for 2 puffs
-   ├── fwdInt_dist.png        # L² distance evolution
-   ├── fwdInt_QU_states.png   # QU profiles before/after integration
-   ├── classification figures
-   └── status                 # Forward integration log
 ```
 
 
@@ -140,15 +143,14 @@ Miscellaneous runtime controls.
 ### Bisection state file `main.state`:
 Keeps track of the current state of the bisection:
 ### [State]
-- 's' - The name of the bisection step. 'IC' - inital conditions, 'Bis' - bisection step, 'Fwd' - forward  integration, 'Adv' - advancing to the next step. 
-- 'n' - The number of the current iteration. When initating should be 0.
+- `s` - The name of the bisection step. `IC` - analyzing inital conditions, `Bis` - bisection step, `Fwd` - forward  integration, `Adv` - advancing to the next step. When initating should be `IC`.
+- `n` - The number of the current iteration. 
 
 
 ### Preperaing the bisection simulation
 # Setup Instructions
 
 1. **Clone the repository**  
-
 2. **Compile two [OpenPipeFlow](http://openpipeflow.org/) template simulations:**  
    - **`bisec_sim/`** — Long simulation time limit \(T_{\text{bisec}}\) with a low saving rate.  
      - If \(T_{\text{bisec}}\) is too short to achieve a classification, another simulation will be initiated with the initial conditions taken from the last snapshot.  
@@ -157,17 +159,13 @@ Keeps track of the current state of the bisection:
    - **`fwdInt_sim/`** — Short simulation time limit \(T_{\text{fwd}}\) with a high saving rate.  
      - \(T_{\text{fwd}}\) sets the maximum integration time for the bounding trajectories and should be slightly longer than the expected separation time.  
      - The high saving rate ensures that the states can be used for spatio-temporal analysis of the edge states.
-
 3. **Compile two utility programs:**  
    - **`p2m.out`** — Built-in `prim2matlab.f90` utility for data extraction.  
    - **`avg_state.out`** — Custom utility for generating a bisection state between two input states, using the provided `bisection.f90` OpenPipeFlow utility code.
-
 4. **Set the appropriate parameters** in `bisec.config`.
-
 5. **Create the initial directory** `IC_0000/` containing:  
    - `s_1p.cdf.dat` — Flow state known to be (or evolve into) a one-puff state.  
    - `s_2p.cdf.dat` — Flow state known to be (or evolve into) a two-puff state.
-
 6. **Initialize the state file** with:  
    ```
    s = IC

@@ -175,13 +175,13 @@ Keeps track of the current state of the bisection:
 
 ### Run the workflow
 ```bash
-python3 bisec_algo_main.py 'Main_Dir'
+python3 bisec_algo_main.py '/Bisection_run/'
 ```
 
 ---
 
 ## Outputs
-- **Flow fields**: ``FwdInt_{num}/fwsInt_{1,2}p/state_{X}.cdf.dat`` samples of the edge-state (when converged)
+- **Flow fields**: ``Bisection_run/FwdInt_{num}/fwsInt_{1,2}p/state_{X}.cdf.dat`` samples of the edge-state (when converged)
 - **Analysis plots**: For manual verification.
 - **Forward integration plots**:  
 - **Logs**: `status` files documenting all iterations.

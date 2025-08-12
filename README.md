@@ -195,5 +195,5 @@ If you use this code in your research, please cite:
 
 ---
 
-## 📬 Contact
+## Contact
 - **Anton Svirsky** — *[anton.sv@campus.technion.ac.il]*  
